@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>רישום לטורניר פינג פונג</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            direction: rtl;
+        }
+
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        input, button {
+            padding: 10px;
+            margin: 10px 0;
+            font-size: 16px;
+        }
+
+        button {
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>רישום לטורניר פינג פונג לזוגות</h1>
+        <form id="registrationForm">
+            <input type="text" id="player1" placeholder="שם שחקן 1" required><br>
+            <input type="text" id="player2" placeholder="שם שחקן 2" required><br>
+            <input type="text" id="tribe" placeholder="שם השבט" required><br>
+            <button type="submit">הרשם</button>
+        </form>
+        <p id="response"></p>
+    </div>
+
+    <script>
+        const form = document.getElementById('registrationForm');
+        form.addEventListener('submit', async function(event) {
+            event.preventDefault();
+
+            const player1 = document.getElementById('player1').value;
+            const player2 = document.getElementById('player2').value;
+            const tribe = document.getElementById('tribe').value;
+
+            const teamData = {
+                player1: player1,
+                player2: player2,
+                tribe: tribe,
+            };
+
+            const response = await saveTeam(teamData);
+            document.getElementById('response').innerText = response;
+        });
+
+        async function saveTeam(teamData) {
+            const token = 'YOUR_PERSONAL_ACCESS_TOKEN'; // Replace with your GitHub API token
+            const repo = 'your-username/your-repository'; // Replace with your GitHub username and repository name
+            const filePath = 'teams.json'; // This file will store team data
+
+            // Get the existing data from the file (if it exists)
+            const fileUrl = `https://api.github.com/repos/${repo}/contents/${filePath}`;
+            const headers = {
+                Authorization: `token ${token}`,
+                Accept: 'application/vnd.github.v3+json',
+            };
+
+            let existingContent = '';
+            try {
+                const response = await fetch(fileUrl, { headers });
+                if (response.ok) {
+                    const fileData = await response.json();
+                    existingContent = atob(fileData.content); // Decode base64 content
+                }
+            } catch (error) {
+                console.error('File not found or could not be read:', error);
+            }
+
+            // Append the new team data to the existing content
+            let teams = [];
+            if (existingContent) {
+                teams = JSON.parse(existingContent); // Parse existing content
+            }
+            teams.push(teamData);
+
+            const updatedContent = btoa(JSON.stringify(teams, null, 2)); // Encode content to base64
+
+            // Prepare request to save the file
+            const body = {
+                message: 'Add new team registration',
+                content: updatedContent,
+                branch: 'main', // Update to match your default branch
+            };
+
+            if (existingContent) {
+                // Include the SHA of the existing file for updates
+                const response = await fetch(fileUrl, { headers });
+                const fileData = await response.json();
+                body.sha = fileData.sha;
+            }
+
+            // Make the API request to update the file
+            const response = await fetch(fileUrl, {
+                method: 'PUT',
+                headers: headers,
+                body: JSON.stringify(body),
+            });
+
+            if (response.ok) {
+                return 'הרשמה הצליחה!';
+            } else {
+                return 'הרשמה נכשלה, נסה שנית.';
+            }
+        }
+    </script>
+</body>
+</html>

@@ -49,18 +49,22 @@ nav ul li a:hover {
 /* Layout with Side Banners */
 .layout-container {
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
     margin-top: 80px;
     padding: 20px;
+    position: relative;
 }
 
+/* Main Content */
 main {
-    width: 70%;
+    width: 60%;
     background-color: #fff;
     padding: 20px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 1;
 }
 
+/* Banners */
 .banner {
     width: 15%;
     padding: 20px;
@@ -68,14 +72,18 @@ main {
     font-size: 18px;
     font-weight: bold;
     color: white;
+    position: fixed;
+    top: 100px;
 }
 
 .banner-left {
     background-color: #0057e7;
+    left: 0;
 }
 
 .banner-right {
     background-color: #ff0000;
+    right: 0;
 }
 
 /* Tables */
@@ -107,6 +115,8 @@ footer {
     text-align: center;
     padding: 20px 0;
     font-size: 14px;
+    position: relative;
+    z-index: 1;
 }
 
 /* Responsive Design */
@@ -119,6 +129,7 @@ footer {
     .banner {
         width: 100%;
         margin-bottom: 20px;
+        position: relative;
     }
 
     main {
